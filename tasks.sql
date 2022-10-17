@@ -270,12 +270,22 @@ GO
 CREATE TRIGGER AccountBalance_UPDATE 
 ON Accounts 
 AFTER UPDATE
-AS
-IF (SELECT Balance FROM INSERTED) < (SELECT SUM(Balance) FROM Cards WHERE AccountId = (SELECT AccountId FROM INSERTED))
+As
+BEGIN
+DECLARE @index INT, @accountbalance_inserted INT, @accountcardstotalbalance INT;
+SET @index = 1;
+WHILE @index <= @@ROWCOUNT
 	BEGIN
-	RAISERROR('Balance cannot be less than total cards balance', 16, 1);
-	ROLLBACK TRANSACTION; 
+	SET @accountbalance_inserted = (SELECT Balance FROM INSERTED ORDER BY AccountId OFFSET @index - 1 ROW FETCH NEXT 1 ROWS ONLY);
+	SET @accountcardstotalbalance = (SELECT SUM(Balance) FROM Cards WHERE AccountId = (SELECT AccountId FROM INSERTED ORDER BY AccountId OFFSET @index - 1 ROW FETCH NEXT 1 ROWS ONLY))
+	IF @accountbalance_inserted < @accountcardstotalbalance
+		BEGIN
+		RAISERROR('Balance cannot be less than total cards balance', 16, 1);
+		ROLLBACK TRANSACTION; 
+		END;
+	SET @index = @index + 1;
 	END;
+END
 GO
 
 --Create trigger that check Card Balance to be less than Account Balance
