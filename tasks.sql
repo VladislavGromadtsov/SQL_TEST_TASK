@@ -126,8 +126,8 @@ JOIN Banks ON Banks.BankId = Accounts.BankId;
 GO
 
 --Task3
---Get list of accounts with balance that does not match with sum of balances of the accaount cards
-SELECT Accounts.AccountId, Accounts.Name, Accounts.Balance, SUM(Cards.Balance) AS CardsBalance, Accounts.Balance - SUM(Cards.Balance) AS TotalBalance
+--Get list of accounts with balance that does not match with sum of balances of the account cards
+SELECT Accounts.AccountId, Accounts.Name, Accounts.Balance, SUM(Cards.Balance) AS CardsBalance, Accounts.Balance - SUM(Cards.Balance) AS BalanceDifference
 FROM Accounts
 JOIN Cards ON Cards.AccountId = Accounts.AccountId
 GROUP BY Accounts.AccountId, Accounts.Name, Accounts.Balance
@@ -300,7 +300,7 @@ IF (SELECT SUM(Balance) FROM Cards WHERE AccountId = (SELECT AccountId FROM INSE
 	END;
 GO
 
---Check before cards update
+--Check before card balance update
 SELECT Accounts.AccountId, Accounts.Name, Accounts.Balance, dbo.AccountAvailableFunds(Accounts.AccountId) AS AvailableFunds, Cards.CardId, Cards.Balance
 FROM Accounts
 JOIN Cards ON Cards.AccountId = Accounts.AccountId;
@@ -317,7 +317,7 @@ SET Balance = @cardbalance_update
 WHERE CardId = @cardid_update;
 GO
 
---Check after cards update
+--Check after card balance update
 SELECT Accounts.AccountId, Accounts.Name, Accounts.Balance, dbo.AccountAvailableFunds(Accounts.AccountId) AS AvailableFunds, Cards.CardId, Cards.Balance
 FROM Accounts
 JOIN Cards ON Cards.AccountId = Accounts.AccountId;
