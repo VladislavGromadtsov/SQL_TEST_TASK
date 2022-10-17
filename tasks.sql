@@ -1,8 +1,8 @@
 --Task0
-CREATE DATABASE Innowise;
+CREATE DATABASE test_task_db;
 GO
 
-USE Innowise;
+USE test_task_db;
 
 CREATE TABLE SocialStatuses(
 	SocialStatusId INT IDENTITY(1, 1) NOT NULL,
@@ -80,19 +80,20 @@ VALUES
 
 INSERT INTO Accounts (Name, Balance, BankId, SocialStatusId)
 VALUES
-('IVAN IVANOV', 0, 1, 1),
-('DMITRIY SAF', 5, 2, 2),
-('ANATOLIY GOR', 10, 3, 3),
-('NIKITA NIKITIN', 15, 4, 1),
-('ALEX GROM', 20, 5, 5);
+('IVAN IVANOV', 150, 1, 1),
+('DMITRIY SAF', 200, 2, 2),
+('ANATOLIY GOR', 300, 3, 3),
+('NIKITA NIKITIN', 0, 4, 1),
+('ALEX GROM', 40, 5, 5);
 
 INSERT INTO Cards (CardNumber, Balance,  AccountId)
 VALUES
 ('1111111111111111', 10, 1),
+('2111111111111111', 15, 1),
 ('2222222222222222', 3, 2),
-('3333333333333333', 111, 3),
-('4444444444444444', 123, 4),
-('5555555555555555', 100, 5);
+('3333333333333333', 34, 3),
+('4444444444444444', 0, 4),
+('5555555555555555', 3, 5);
 
 INSERT INTO Branches (BankId, Number, CityId)
 VALUES
@@ -101,14 +102,6 @@ VALUES
 (2, 10, 3),
 (3, 1, 5),
 (4, 1, 5);
-GO
-
-SELECT * FROM Cities;
-SELECT * FROM Banks;
-SELECT * FROM SocialStatuses;
-SELECT * FROM Accounts;
-SELECT * FROM Cards;
-SELECT * FROM Branches;
 GO
 
 --Task1
@@ -303,10 +296,15 @@ FROM Accounts
 JOIN Cards ON Cards.AccountId = Accounts.AccountId;
 GO
 
+DECLARE @cardbalance_update INT, @cardid_update INT;
+
+SET @cardbalance_update = 15;
+SET @cardid_update = 1;
+
 --Update card balance
 UPDATE Cards 
-SET Balance = 15 
-WHERE CardId = 1;
+SET Balance = @cardbalance_update 
+WHERE CardId = @cardid_update;
 GO
 
 --Check after cards update
@@ -315,10 +313,15 @@ FROM Accounts
 JOIN Cards ON Cards.AccountId = Accounts.AccountId;
 GO
 
+DECLARE @accountbalance_update INT, @accountid_update INT;
+
+SET @accountbalance_update = 90;
+SET @accountid_update = 1;
+
 --Update Account balance
 UPDATE Accounts
-SET Balance = 90
-WHERE AccountId = 1;
+SET Balance = @accountbalance_update
+WHERE AccountId = @accountid_update;
 GO
 
 --Check after Account update
