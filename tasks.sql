@@ -273,3 +273,56 @@ JOIN Cards ON Cards.AccountId = Accounts.AccountId;
 GO
 
 --Task8
+--Create trigger that check Account Balance to be more than total cards balance
+CREATE TRIGGER AccountBalance_UPDATE 
+ON Accounts 
+AFTER UPDATE
+AS
+IF (SELECT Balance FROM INSERTED) < (SELECT SUM(Balance) FROM Cards WHERE AccountId = (SELECT AccountId FROM INSERTED))
+	BEGIN
+	RAISERROR('Balance cannot be less than total cards balance', 16, 1);
+	ROLLBACK TRANSACTION; 
+	END;
+GO
+
+--Create trigger that check Card Balance to be less than Account Balance
+CREATE TRIGGER CardBalance_UPDATE 
+ON Cards 
+AFTER UPDATE
+AS
+IF (SELECT SUM(Balance) FROM Cards WHERE AccountId = (SELECT AccountId FROM INSERTED)) > (SELECT Balance FROM Accounts WHERE AccountId = (SELECT AccountId FROM INSERTED))
+	BEGIN
+	RAISERROR('Balance cannot be more than account balance', 16, 1);
+	ROLLBACK TRANSACTION; 
+	END;
+GO
+
+--Check before cards update
+SELECT Accounts.AccountId, Accounts.Name, Accounts.Balance, dbo.AccountAvailableFunds(Accounts.AccountId) AS AvailableFunds, Cards.CardId, Cards.Balance
+FROM Accounts
+JOIN Cards ON Cards.AccountId = Accounts.AccountId;
+GO
+
+--Update card balance
+UPDATE Cards 
+SET Balance = 15 
+WHERE CardId = 1;
+GO
+
+--Check after cards update
+SELECT Accounts.AccountId, Accounts.Name, Accounts.Balance, dbo.AccountAvailableFunds(Accounts.AccountId) AS AvailableFunds, Cards.CardId, Cards.Balance
+FROM Accounts
+JOIN Cards ON Cards.AccountId = Accounts.AccountId;
+GO
+
+--Update Account balance
+UPDATE Accounts
+SET Balance = 90
+WHERE AccountId = 1;
+GO
+
+--Check after Account update
+SELECT Accounts.AccountId, Accounts.Name, Accounts.Balance, dbo.AccountAvailableFunds(Accounts.AccountId) AS AvailableFunds, Cards.CardId, Cards.Balance
+FROM Accounts
+JOIN Cards ON Cards.AccountId = Accounts.AccountId;
+GO
